@@ -17,7 +17,8 @@ public:
     FileReader(const std::wstring &Path,
                size_t PaddingLength,
                size_t ChunkLength,
-               FileDataChunksStorage *ChunksStorage);
+               FileDataChunksStorage *SearchManagerChunksStorage,
+               FileDataChunksStorage *MatchProcessorChunksStorage);
     FileReader(const FileReader&) = delete;
     FileReader &operator= (const FileReader&) = delete;
     FileReader(const FileReader&&) = delete;
@@ -26,5 +27,6 @@ public:
 private:
     std::wstring path;
     size_t paddingLength, chunkLength;
-    FileDataChunksStorage *chunksStorage;
+    FileDataChunksStorage *searchManagerChunksStorage;
+    FileDataChunksStorage *matchProcessorChunksStorage;
 };

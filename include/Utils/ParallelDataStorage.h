@@ -46,10 +46,10 @@ public:
 
         condVar.notify_all();
     }
-    void Wait(bool &Stop, const std::function<void(const TData &)> &Process)
+    TData Wait(bool &Stop, bool &HasElement)
     {
         TData elem;
-        bool has_element = false;
+        HasElement = false;
 
         {
             std::unique_lock<std::mutex> lock(m);
@@ -62,14 +62,13 @@ public:
                 elem = data.front();
                 data.pop_front();
 
-                has_element = true;
+                HasElement = true;
             }
-        }
-        
-        if(has_element)
-            Process(elem);
 
-        Stop = !adding && data.size() == 0;
+            Stop = !adding && data.size() == 0;
+        }
+
+        return elem;
     }
 };
 

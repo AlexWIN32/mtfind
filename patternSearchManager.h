@@ -6,7 +6,6 @@
 *******************************************************************************/
 
 #pragma once
-#include <Utils/ParallelDataStorage.h>
 #include <memory>
 #include "commonTypes.h"
 
@@ -24,6 +23,4 @@ private:
     std::string pattern;
     FileDataChunksStorage *chunksStorage;
     PatternMatchProcessor *matchProcessor;
-    std::string lastLine;
-    uint32_t lineInd = 0;
 };

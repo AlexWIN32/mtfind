@@ -6,10 +6,27 @@
 *******************************************************************************/
 
 #pragma once
+#include "commonTypes.h"
+#include <vector>
 #include <string>
 
 class PatternMatchProcessor
 {
 public:
-    void AddMatch(const std::string &line, uint32_t lineInd, size_t PosInLine);
+    PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage, const std::wstring &FilePath);
+    void AddMatch(int32_t Pos);
+    void Process();
+private:
+    void ProcessChunk(const std::shared_ptr<FileDataChunk> &Chunk);
+    void CheckPendingMatches();
+    struct LinePosData
+    {
+        int32_t start = 0, count = 0;
+    };
+    std::recursive_mutex matchesMutex;
+    std::vector<LinePosData> linesData;
+    std::vector<int32_t> pendingMatches;
+    FileDataChunksStorage *chunksStorage;
+    std::wstring filePath;
+    LinePosData lastLine;
 };

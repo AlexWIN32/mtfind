@@ -12,8 +12,13 @@
 FileReader::FileReader(const std::wstring &Path,
                        size_t PaddingLength,
                        size_t ChunkLength,
-                       FileDataChunksStorage *ChunksStorage)
-    : path(Path), paddingLength(PaddingLength), chunkLength(ChunkLength), chunksStorage(ChunksStorage)
+                       FileDataChunksStorage *SearchManagerChunksStorage,
+                       FileDataChunksStorage *MatchProcessorChunksStorage)
+    : path(Path),
+      paddingLength(PaddingLength),
+      chunkLength(ChunkLength),
+      searchManagerChunksStorage(SearchManagerChunksStorage),
+      matchProcessorChunksStorage(MatchProcessorChunksStorage)
 {
 }
 
@@ -39,10 +44,19 @@ void FileReader::Process()
             chunkDataLen = readed + paddingLength;
         }
 
-        std::vector<char> chunkData(buffer.begin(), buffer.begin() + chunkDataLen);
+        if(readed != 0){
 
-        chunksStorage->Add(std::make_unique<FileDataChunk>(std::move(chunkData), fileOffset, (fileOffset == 0) ? 0 : paddingLength));
+            std::vector<char> chunkData(buffer.begin(), buffer.begin() + chunkDataLen);
+
+            std::shared_ptr<FileDataChunk> newChunk(std::make_shared<FileDataChunk>(std::move(chunkData), fileOffset, (fileOffset == 0) ? 0 : paddingLength));
+
+            searchManagerChunksStorage->Add(newChunk);
+            matchProcessorChunksStorage->Add(newChunk);
+        }
 
         fileOffset += readed;
     }
+
+    searchManagerChunksStorage->StopAdding();
+    matchProcessorChunksStorage->StopAdding();
 }

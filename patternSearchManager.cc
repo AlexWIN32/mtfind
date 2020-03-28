@@ -10,6 +10,7 @@
 #include "fileDataChunk.h"
 #include "patternMatchProcessor.h"
 #include <functional>
+#include <iostream>
 
 PatternSearchManager::PatternSearchManager(const std::string &Pattern,
                                            FileDataChunksStorage *FileDataChunksStorage,
@@ -20,11 +21,15 @@ PatternSearchManager::PatternSearchManager(const std::string &Pattern,
 
 void PatternSearchManager::Process()
 {
-    auto func = std::bind(&PatternSearchManager::ProcessChunk, this, std::placeholders::_1);
-
     bool stop = false;
-    while (stop == false)
-        chunksStorage->Wait(stop, func);
+    while (stop == false){
+
+        bool hasElement = false;
+        std::shared_ptr<FileDataChunk> chunk = chunksStorage->Wait(stop, hasElement);
+
+        if(hasElement)
+            ProcessChunk(chunk);
+    }
 }
 
 void PatternSearchManager::ProcessChunk(const std::shared_ptr<FileDataChunk> &Chunk)
@@ -33,21 +38,12 @@ void PatternSearchManager::ProcessChunk(const std::shared_ptr<FileDataChunk> &Ch
 
     for(size_t i = 0; i < chunkData.size() - pattern.size(); i++){
 
-        if(i >= Chunk->GetPaddingLen()){
-            if(chunkData[i] == '\n')
-                lastLine.clear();
-            else{
-                lastLine += chunkData[i];
-                lineInd++;
-            }
-        }
-
         int charsMatched = 0;
 
         for(size_t ii = 0; ii < pattern.size(); ii++)
             charsMatched += chunkData[i + ii] == pattern[ii];
             
         if(charsMatched == pattern.size())
-            matchProcessor->AddMatch(lastLine, lineInd + 1, i + 1);
+            matchProcessor->AddMatch(Chunk->GetOffset() + i);
     }
 }
