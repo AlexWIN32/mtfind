@@ -7,10 +7,11 @@
 
 #include "patternMatchProcessor.h"
 #include "FileDataChunk.h"
+#include <Utils/ToString.h>
 #include <iostream>
 
 PatternMatchProcessor::PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage, const std::wstring &FilePath)
-    : chunksStorage(FileDataChunksStorage), filePath(FilePath)
+    : chunksStorage(FileDataChunksStorage), file(FilePath, L"rb")
 {
 }
 
@@ -51,7 +52,7 @@ void PatternMatchProcessor::ProcessChunk(const std::shared_ptr<FileDataChunk> &C
             CheckPendingMatches();
 
             lastLine.count = 0;
-            lastLine.start = Chunk->GetOffset() + i + 1;
+            lastLine.start = Chunk->GetOffset() + (i - Chunk->GetPaddingLen()) + 1;
 
         }else
             lastLine.count++;
@@ -65,12 +66,20 @@ void PatternMatchProcessor::CheckPendingMatches()
     for(std::vector<int32_t>::iterator it = pendingMatches.begin(); it != pendingMatches.end();){
         
         bool found = false;
-        for(const LinePosData &ld : linesData)
+        for(size_t l = 0; l < linesData.size(); l++){
+            const LinePosData &ld = linesData[l];
+
             if(ld.start < *it && ld.start + ld.count > *it){
-                std::cout << ld.start << ":" << ld.count << std::endl;
+                std::string line(ld.count, '\0');
+
+                file.SetPos(ld.start);
+                file.ReadArray(&line[0], line.size());
+
+                std::wcout << file.GetPath() << L":" << (l + 1) << L":"<<ld.start << L":"<<ld.count<< L" " << Utils::ToWString(line) << std::endl;
                 found = true;
                 break;
             }
+        }
 
         if(found)
             it = pendingMatches.erase(it);

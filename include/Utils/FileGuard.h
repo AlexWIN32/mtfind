@@ -145,6 +145,15 @@ public:
 
         return size;
     }
+    void SetPos(size_t NewPos)
+    {
+        if(fseek(file, NewPos, SEEK_SET) != 0)
+            throw IOException(L"Cant set pos in file " + path);
+    }
+    const std::wstring &GetPath() const
+    {
+        return path;
+    }
 };
 
 typedef BasicFileGuard<DefaultSerialisingStrategy> FileGuard;

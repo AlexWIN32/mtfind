@@ -39,59 +39,27 @@ int main(char **argc, int argv)
 
     std::string pattern = "TT";
     std::wstring filePath = L"./fileReaderTest1.txt";
-    size_t chunkLength = 256;
+    size_t chunkLength = 5;
 
-    FileDataChunksStorage matchProcessorChunks, searchManagerChunks;
+    try{
+        FileDataChunksStorage matchProcessorChunks, searchManagerChunks;
 
-    FileReader fileReader(filePath, pattern.size() - 1, chunkLength, &searchManagerChunks, &matchProcessorChunks);
-    PatternMatchProcessor patternMatchProcessor(&matchProcessorChunks, filePath);
-    PatternSearchManager patternSearchManager(pattern, &searchManagerChunks, &patternMatchProcessor);
+        FileReader fileReader(filePath, pattern.size() - 1, chunkLength, &searchManagerChunks, &matchProcessorChunks);
+        PatternMatchProcessor patternMatchProcessor(&matchProcessorChunks, filePath);
+        PatternSearchManager patternSearchManager(pattern, &searchManagerChunks, &patternMatchProcessor);
 
-    std::thread readThread(std::bind(&FileReader::Process, &fileReader));
-    std::thread searchThread(std::bind(&PatternSearchManager::Process, &patternSearchManager));
-    std::thread processThread(std::bind(&PatternMatchProcessor::Process, &patternMatchProcessor));
+        std::thread readThread(std::bind(&FileReader::Process, &fileReader));
+        std::thread searchThread(std::bind(&PatternSearchManager::Process, &patternSearchManager));
+        std::thread processThread(std::bind(&PatternMatchProcessor::Process, &patternMatchProcessor));
 
-    readThread.join();
-    searchThread.join();
-    processThread.join();
-    /*
-    Utils::ParallelDataStorage<int32_t> data;
+        readThread.join();
+        searchThread.join();
+        processThread.join();
 
-    std::thread producerThread([&]()
-    {
-        int32_t ind = 0;
-        while(ind < 10){
+    }catch(const Exception &ex){
+        std::cerr << "error: " << ex.What() << std::endl;
+        return 1;
+    }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-            std::cout << "P " << ind << std::endl;
-
-            data.Add(ind);
-
-            ind++;
-        }
-
-        data.StopAdding();
-    });
-
-    std::thread consumer_thread([&]()
-    {
-        bool stop = false;
-        while(!stop){
-            
-            bool hasElement;
-            int32_t v = data.Wait(stop, hasElement);
-
-            if(hasElement){
-                std::this_thread::sleep_for(std::chrono::seconds(5));
-
-                std::cout << "C " << v << std::endl;    
-            }
-        }
-    });
-    
-    producerThread.join();
-    consumer_thread.join();
-    */
     return 0;
 }

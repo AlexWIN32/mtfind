@@ -7,6 +7,7 @@
 
 #pragma once
 #include "commonTypes.h"
+#include <Utils/FileGuard.h>
 #include <vector>
 #include <string>
 
@@ -27,6 +28,6 @@ private:
     std::vector<LinePosData> linesData;
     std::vector<int32_t> pendingMatches;
     FileDataChunksStorage *chunksStorage;
-    std::wstring filePath;
     LinePosData lastLine;
+    Utils::FileGuard file;
 };
