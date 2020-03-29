@@ -19,7 +19,6 @@ public:
                          PatternMatchProcessor *MatchProcessor);
     void Process();
 private:
-    void ProcessChunk(const std::shared_ptr<FileDataChunk> &Chunk);
     std::string pattern;
     FileDataChunksStorage *chunksStorage;
     PatternMatchProcessor *matchProcessor;

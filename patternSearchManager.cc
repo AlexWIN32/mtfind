@@ -9,6 +9,7 @@
 #include "patternSearchManager.h"
 #include "fileDataChunk.h"
 #include "patternMatchProcessor.h"
+#include <Utils/RabinKarpSearch.h>
 #include <functional>
 #include <iostream>
 
@@ -27,23 +28,13 @@ void PatternSearchManager::Process()
         bool hasElement = false;
         std::shared_ptr<FileDataChunk> chunk = chunksStorage->Wait(stop, hasElement);
 
-        if(hasElement)
-            ProcessChunk(chunk);
-    }
-}
+        if(hasElement){
 
-void PatternSearchManager::ProcessChunk(const std::shared_ptr<FileDataChunk> &Chunk)
-{
-    const std::vector<char> &chunkData = Chunk->GetData();
+            std::list<size_t> matches;
+            Utils::RabinKarpSearch(chunk->GetData(), pattern, matches, 101);
 
-    for(size_t i = 0; i < chunkData.size() - pattern.size(); i++){
-
-        int charsMatched = 0;
-
-        for(size_t ii = 0; ii < pattern.size(); ii++)
-            charsMatched += chunkData[i + ii] == pattern[ii];
-            
-        if(charsMatched == pattern.size())
-            matchProcessor->AddMatch(Chunk->GetOffset() + i);
+            for(size_t m : matches)
+                matchProcessor->AddMatch(chunk->GetOffset() + m);
+        }
     }
 }

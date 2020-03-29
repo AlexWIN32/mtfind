@@ -7,6 +7,7 @@
 
 #include <Utils/FileGuard.h>
 #include <Utils/ParallelDataStorage.h>
+#include <Utils/ToString.h>
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -15,28 +16,13 @@
 #include "patternSearchManager.h"
 #include "patternMatchProcessor.h"
 
-int FindInsertPos(const std::vector<float> &Data, int StartInd, int EndInd, float Val) 
-{ 
-    if (EndInd >= StartInd) { 
-        int mid = StartInd + (EndInd - StartInd) / 2; 
-  
-        if (Data[mid] > Val) 
-            return FindInsertPos(Data, StartInd, mid - 1, Val); 
-        else if (Data[mid] < Val)
-            return FindInsertPos(Data, mid + 1, EndInd, Val); 
-        else
-            return mid;
-    } 
-  
-    return EndInd; 
+void OnMatch(const PatternMatchProcessor::MatchData &Match)
+{
+    std::wcout << Match.filePath << L":" << Match.lineInd << L" "<< Utils::ToWString(Match.line) << std::endl;
 }
 
 int main(char **argc, int argv)
 {
-    std::vector<float> data = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
-
-    int ind = FindInsertPos(data, 0, data.size() - 1, 0.5f);
-
     std::string pattern = "TT";
     std::wstring filePath = L"./fileReaderTest1.txt";
     size_t chunkLength = 5;
@@ -45,7 +31,7 @@ int main(char **argc, int argv)
         FileDataChunksStorage matchProcessorChunks, searchManagerChunks;
 
         FileReader fileReader(filePath, pattern.size() - 1, chunkLength, &searchManagerChunks, &matchProcessorChunks);
-        PatternMatchProcessor patternMatchProcessor(&matchProcessorChunks, filePath);
+        PatternMatchProcessor patternMatchProcessor(&matchProcessorChunks, filePath, OnMatch);
         PatternSearchManager patternSearchManager(pattern, &searchManagerChunks, &patternMatchProcessor);
 
         std::thread readThread(std::bind(&FileReader::Process, &fileReader));
