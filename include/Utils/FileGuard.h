@@ -10,6 +10,9 @@
 #include <string>
 #include <stdint.h>
 #include <Exception.h>
+#if __linux__
+#include <Utils/ToString.h>
+#endif
 
 namespace Utils
 {
@@ -77,21 +80,6 @@ public:
     }
 };
 
-template<>
-void DefaultSerialisingStrategy::Write<std::string>(FILE *File, const std::wstring &Path, const std::string &Var)
-{
-    for(char ch : Var)
-        Write(File, Path, ch);
-
-    Write<char>(File, Path, '\0');
-}
-
-template<>
-std::string DefaultSerialisingStrategy::Read<std::string>(FILE *File, const std::wstring &Path, bool &Eof)
-{
-    return ReadUntil<std::string, uint8_t>(File, Path, Eof, '\0');
-}
-
 template<class TStrategy>
 class BasicFileGuard final
 {
@@ -105,7 +93,16 @@ public:
     BasicFileGuard(FILE *File, const std::wstring &Path) : file(File), path(Path){}
     BasicFileGuard(const std::wstring &Path, const std::wstring &Mode)
     {
-        if(_wfopen_s(&file, Path.c_str(), Mode.c_str()))
+        errno_t res;
+#ifdef __linux__
+        std::string path = Utils::ToString(Path);
+        std::string mode = Utils::ToString(Mode);
+
+        res = fopen(&file, path.c_str(), mode.c_str())
+#else
+        res = _wfopen_s(&file, Path.c_str(), Mode.c_str());
+#endif
+        if(res != 0)
             throw IOException(L"Cant open file " + Path);
 
         path = Path;
