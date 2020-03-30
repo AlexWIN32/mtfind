@@ -5,7 +5,7 @@
     See "LICENSE" or "http://copyfree.org/content/standard/licenses/mit/license.txt".
 *******************************************************************************/
 
-#include "FileDataChunk.h"
+#include "fileDataChunk.h"
 
 FileDataChunk::FileDataChunk(std::vector<char> &&Data, int32_t Offset, size_t PaddingLen)
     : data(std::move(Data)), offset(Offset), paddingLen(PaddingLen)

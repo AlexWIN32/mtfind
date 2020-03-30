@@ -6,7 +6,7 @@
 *******************************************************************************/
 
 #include "patternMatchProcessor.h"
-#include "FileDataChunk.h"
+#include "fileDataChunk.h"
 #include <iostream>
 
 PatternMatchProcessor::PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage,

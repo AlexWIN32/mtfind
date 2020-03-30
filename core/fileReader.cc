@@ -4,8 +4,8 @@
     This software is distributed freely under the terms of the MIT License.
     See "LICENSE" or "http://copyfree.org/content/standard/licenses/mit/license.txt".
 *******************************************************************************/
-#include "FileReader.h"
-#include "FileDataChunk.h"
+#include "fileReader.h"
+#include "fileDataChunk.h"
 #include <Utils/FileGuard.h>
 #include <vector>
 
