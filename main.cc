@@ -11,21 +11,46 @@
 #include <iostream>
 #include <vector>
 
+void PrintUsage(char *ProgramName)
+{
+    std::cout << "Usage: " << ProgramName << " file ?pattern" << std::endl
+              << "Performs multithreaded pattern search using Pipeline pattern" << std::endl
+              << std::endl 
+              << "  file        path to file in which you want to perform search" << std::endl
+              << "  pattern     sequence of symbols you want to find" << std::endl;
+}
+
 void OnMatch(const MatchData &Match)
 {
     std::wcout << Match.filePath << L":" << Match.lineInd << L" "<< Utils::ToWString(Match.line) << std::endl;
 }
 
-int main(char **argc, int argv)
+int main(int argc, char ** argv)
 {
-    std::string pattern = "TT";
-    std::wstring filePath = L"./fileReaderTest1.txt";
-    size_t chunkLength = 5;
+    if(argc != 3){
+        PrintUsage(argv[0]);
+        return 0;
+    }
+
+    std::wstring filePath = Utils::ToWString(argv[1]);
+    std::string pattern = argv[2];
+
+    if(pattern.empty() || pattern[0] != '?'){
+        std::cerr << "error: pattern must start with '?' symbol";
+        return 1;
+    }
+
+    pattern = pattern.substr(1);
+
+    const size_t CHUNK_LENGTH = 256;
 
     try{
-        mtfind(filePath, pattern, chunkLength, OnMatch);
+        mtfind(filePath, pattern, CHUNK_LENGTH, OnMatch);
     }catch(const Exception &ex){
-        std::cerr << "error: " << ex.What() << std::endl;
+        if(!ex.What().empty())
+            std::cerr << "error: " << ex.What() << std::endl;
+        else
+            std::wcerr << L"error: " << ex.WhatW() << std::endl;
         return 1;
     }
 
