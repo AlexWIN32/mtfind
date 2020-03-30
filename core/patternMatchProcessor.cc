@@ -8,6 +8,8 @@
 #include "patternMatchProcessor.h"
 #include "fileDataChunk.h"
 #include <iostream>
+#include <cstdint>
+#include <cstddef>
 
 PatternMatchProcessor::PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage,
                                              const std::wstring &FilePath,

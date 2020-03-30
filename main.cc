@@ -10,6 +10,8 @@
 #include <Mtfind.h>
 #include <iostream>
 #include <vector>
+#include <cstdint>
+#include <cstddef>
 
 void PrintUsage(char *ProgramName)
 {

@@ -7,6 +7,8 @@
 
 #pragma once
 #include <vector>
+#include <cstdint>
+#include <cstddef>
 
 class FileDataChunk
 {

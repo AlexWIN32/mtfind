@@ -7,6 +7,8 @@
 
 #pragma once
 #include <memory>
+#include <cstdint>
+#include <cstddef>
 #include "commonTypes.h"
 
 class PatternMatchProcessor;

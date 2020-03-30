@@ -11,6 +11,8 @@
 #include <Mtfind.h>
 #include <vector>
 #include <string>
+#include <cstdint>
+#include <cstddef>
 
 class PatternMatchProcessor
 {
