@@ -29,14 +29,6 @@ public:
         if(fwrite(Array, sizeof(TVar), ArraySize, File) != ArraySize)
             throw IOException(L"cant write to file " + Path);
     }
-    template<>
-    static void Write<std::string>(FILE *File, const std::wstring &Path, const std::string &Var)
-    {
-        for(char ch : Var)
-            Write(File, Path, ch);
-
-        Write<char>(File, Path, '\0');
-    }
     template<class TVar>
     static size_t ReadArray(FILE *File, TVar *OutArray, size_t ArraySize, const std::wstring &Path, bool &Eof)
     {
@@ -59,11 +51,7 @@ public:
 
         return var;
     }
-    template<>
-    static std::string Read<std::string>(FILE *File, const std::wstring &Path, bool &Eof)
-    {
-        return ReadUntil<std::string, uint8_t>(File, Path, Eof, '\0');
-    }
+
     template<class TContainer, class TVar>
     static TContainer ReadUntil(FILE *File,
                                 const std::wstring &Path,
@@ -88,6 +76,21 @@ public:
         return container;
     }
 };
+
+template<>
+void DefaultSerialisingStrategy::Write<std::string>(FILE *File, const std::wstring &Path, const std::string &Var)
+{
+    for(char ch : Var)
+        Write(File, Path, ch);
+
+    Write<char>(File, Path, '\0');
+}
+
+template<>
+std::string DefaultSerialisingStrategy::Read<std::string>(FILE *File, const std::wstring &Path, bool &Eof)
+{
+    return ReadUntil<std::string, uint8_t>(File, Path, Eof, '\0');
+}
 
 template<class TStrategy>
 class BasicFileGuard final
