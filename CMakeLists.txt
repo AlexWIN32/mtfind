@@ -2,17 +2,9 @@ cmake_minimum_required(VERSION 2.8.6)
 
 project(mtfind)
 
-set(SOURCES
-    main.cc
-    fileDataChunk.cc
-    fileDataChunk.h
-    fileReader.cc
-    fileReader.h
-    patternSearchManager.cc
-    patternSearchManager.h
-    patternMatchProcessor.cc
-    patternMatchProcessor.h
-    )
+add_subdirectory(core)
 
-add_executable(mtfind ${SOURCES})
-target_include_directories(mtfind PRIVATE "${CMAKE_SOURCE_DIR}/include" )
+add_executable(mtfind main.cc)
+
+target_include_directories(mtfind PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_link_libraries(mtfind core)

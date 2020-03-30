@@ -8,20 +8,13 @@
 #pragma once
 #include "commonTypes.h"
 #include <Utils/FileGuard.h>
+#include <Mtfind.h>
 #include <vector>
 #include <string>
-#include <functional>
 
 class PatternMatchProcessor
 {
 public:
-    struct MatchData
-    {
-        std::wstring filePath;
-        std::string line;
-        int32_t lineInd = 0;
-    };
-    using OnMatchProc = std::function<void(const MatchData &)>;
     PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage,
                           const std::wstring &FilePath,
                           const OnMatchProc &OnMatchProcedure);
