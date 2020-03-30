@@ -10,7 +10,7 @@
 #include <string>
 #include <stdint.h>
 #include <Exception.h>
-#if __linux__
+#ifdef __linux__
 #include <Utils/ToString.h>
 #endif
 
@@ -54,7 +54,6 @@ public:
 
         return var;
     }
-
     template<class TContainer, class TVar>
     static TContainer ReadUntil(FILE *File,
                                 const std::wstring &Path,
@@ -93,17 +92,17 @@ public:
     BasicFileGuard(FILE *File, const std::wstring &Path) : file(File), path(Path){}
     BasicFileGuard(const std::wstring &Path, const std::wstring &Mode)
     {
-        errno_t res;
 #ifdef __linux__
-        std::string path = Utils::ToString(Path);
-        std::string mode = Utils::ToString(Mode);
-
-        res = fopen(&file, path.c_str(), mode.c_str())
+        std::string asciiPath = Utils::ToString(Path);
+        std::string asciiMode = Utils::ToString(Mode);
+        
+	file = fopen(asciiPath.c_str(), asciiMode.c_str());
+	if(file == nullptr)
 #else
-        res = _wfopen_s(&file, Path.c_str(), Mode.c_str());
-#endif
+        errno_t res = _wfopen_s(&file, Path.c_str(), Mode.c_str());
         if(res != 0)
-            throw IOException(L"Cant open file " + Path);
+#endif
+           throw IOException(L"Cant open file " + Path);
 
         path = Path;
     }
@@ -114,27 +113,27 @@ public:
     template<class TVar>
     TVar Read()
     {
-        return TStrategy::Read<TVar>(file, path, eof);
+        return TStrategy::template Read<TVar>(file, path, eof);
     }
     template<class TVar>
     size_t ReadArray(TVar *OutArray, size_t ArraySize)
     {
-        return TStrategy::ReadArray<TVar>(file, OutArray, ArraySize, path, eof);
+        return TStrategy::template ReadArray<TVar>(file, OutArray, ArraySize, path, eof);
     }
     template<class TContainer, class TVar>
     TContainer ReadUntil(const TVar &TerminateElement)
     {
-        return TStrategy::ReadUntil<TContainer>(file, path, eof, TerminateElement);
+        return TStrategy::template ReadUntil<TContainer>(file, path, eof, TerminateElement);
     }
     template<class TVar>
     void Write(const TVar &Var)
     {
-        TStrategy::Write<TVar>(file, path, Var);
+        TStrategy::template Write<TVar>(file, path, Var);
     }
     template<class TVar>
     void WriteArray(const TVar *Array, size_t ArraySize)
     {
-        TStrategy::WriteArray<TVar>(file, Array, ArraySize, path);
+        TStrategy::template WriteArray<TVar>(file, Array, ArraySize, path);
     }
     bool Eof() const {return eof;}
     size_t Size() const 

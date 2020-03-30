@@ -5,7 +5,6 @@
     See "LICENSE" or "http://copyfree.org/content/standard/licenses/mit/license.txt".
 *******************************************************************************/
 
-#pragma once
 #include "patternSearchManager.h"
 #include "fileDataChunk.h"
 #include "patternMatchProcessor.h"
