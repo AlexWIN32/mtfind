@@ -42,8 +42,8 @@ int main(int argc, char ** argv)
 
     size_t linesCnt = GetRandVal(1, 200);
     size_t cymbolsInLine = GetRandVal(1, 200);
-    size_t appearanceLine = GetRandVal(1, linesCnt);
-    size_t appearanceStartCymbol = GetRandVal(1, cymbolsInLine);
+    size_t appearanceLine = GetRandVal(0, linesCnt - 1);
+    size_t appearanceStartCymbol = GetRandVal(0, cymbolsInLine - 1);
 
     try{
         Utils::FileGuard file(filePath, L"wb");
@@ -58,7 +58,7 @@ int main(int argc, char ** argv)
 
                     file.Write(GetRandChar());
                 }
-
+                                                                             
                 file.Write<char>('\n');
             }
 
