@@ -26,16 +26,13 @@ void RabinKarpSearch(const TData &Data, const TPattern &Pattern, std::list<size_
     int64_t h = 1;
     // The value of h would be "pow(CHARS_RANGE, paternLen-1) % prime"
     for (size_t i = 0; i < paternLen - 1; i++)
-        h = (h * CHARS_RANGE);
-    h %= Prime;
+        h = (h * CHARS_RANGE) % Prime;
 
     // Calculate the hash value of pattern and first window of text
     for (size_t i = 0; i < paternLen; i++){
-        patternHash = CHARS_RANGE * patternHash + Pattern[i];
-        textRollingHash = CHARS_RANGE * textRollingHash + Data[i];
+        patternHash = (CHARS_RANGE * patternHash + Pattern[i]) % Prime;
+        textRollingHash = (CHARS_RANGE * textRollingHash + Data[i]) % Prime;
     }
-    patternHash %= Prime;
-    textRollingHash %= Prime;
 
     // Slide the pattern over text one by one
     for (size_t i = 0; i <= dataLen - paternLen; i++){

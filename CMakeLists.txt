@@ -8,3 +8,8 @@ add_executable(mtfind main.cc)
 
 target_include_directories(mtfind PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(mtfind core)
+
+add_executable(tests tests.cc)
+
+target_include_directories(tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_link_libraries(tests core)
