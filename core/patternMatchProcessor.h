@@ -17,24 +17,17 @@
 class PatternMatchProcessor
 {
 public:
-    PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage,
-                          const std::wstring &FilePath,
-                          const OnMatchProc &OnMatchProcedure);
-    void AddMatch(int32_t Pos);
+    PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage, const OnMatchProc &OnMatchProcedure);
+    void AddMatch(const BlockParams &NewMatch);
     void Process();
 private:
-    struct LinePosData
-    {
-        int32_t start = 0, count = 0;
-    };
     void ProcessChunk(const std::shared_ptr<FileDataChunk> &Chunk);
     void CheckPendingMatches();
-    int32_t FindLineInd(const std::vector<LinePosData> &LinesData, int StartInd, int EndInd, int32_t Ind);
+    int32_t FindLineInd(const std::vector<BlockParams> &LinesData, int StartInd, int EndInd, int32_t Ind);
     std::recursive_mutex matchesMutex;
-    std::vector<LinePosData> linesData;
-    std::vector<int32_t> pendingMatches;
+    std::vector<BlockParams> linesData;
+    std::vector<BlockParams> pendingMatches;
     FileDataChunksStorage *chunksStorage;
-    LinePosData lastLine;
-    Utils::FileGuard file;
+    BlockParams lastLine;
     OnMatchProc onMatchProcedure;
 };

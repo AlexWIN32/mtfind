@@ -11,18 +11,16 @@
 #include <cstdint>
 #include <cstddef>
 
-PatternMatchProcessor::PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage,
-                                             const std::wstring &FilePath,
-                                             const OnMatchProc &OnMatchProcedure)
-    : chunksStorage(FileDataChunksStorage), file(FilePath, L"rb"), onMatchProcedure(OnMatchProcedure)
+PatternMatchProcessor::PatternMatchProcessor(FileDataChunksStorage *FileDataChunksStorage,const OnMatchProc &OnMatchProcedure)
+    : chunksStorage(FileDataChunksStorage), onMatchProcedure(OnMatchProcedure)
 {
 }
 
-void PatternMatchProcessor::AddMatch(int32_t Pos)
+void PatternMatchProcessor::AddMatch(const BlockParams &NewMatch)
 {
     std::unique_lock<std::recursive_mutex> lock(matchesMutex);
 
-    pendingMatches.push_back(Pos);
+    pendingMatches.push_back(NewMatch);
 
     CheckPendingMatches();
 }
@@ -66,23 +64,20 @@ void PatternMatchProcessor::CheckPendingMatches()
 {
     std::unique_lock<std::recursive_mutex> lock(matchesMutex);
 
-    for(std::vector<int32_t>::iterator it = pendingMatches.begin(); it != pendingMatches.end();){
+    for(auto it = pendingMatches.begin(); it != pendingMatches.end();){
 
-        int32_t ind = FindLineInd(linesData, 0, linesData.size() - 1, *it);
+        const BlockParams &match = *it;
+        int32_t ind = FindLineInd(linesData, 0, linesData.size() - 1, match.start);
 
         if(ind != -1){
-            const LinePosData &ld = linesData[ind];
-            std::string line(ld.count, '\0');
-
-            file.SetPos(ld.start);
-            file.ReadArray(&line[0], line.size());
 
             MatchData matchData;
-            matchData.filePath = file.GetPath();
             matchData.lineInd = ind + 1;
-            matchData.line = std::move(line);
+            matchData.lineParams = linesData[ind];
+            matchData.matchParams = match;
 
-            onMatchProcedure(matchData);
+            if(onMatchProcedure)
+                onMatchProcedure(matchData);
 
             it = pendingMatches.erase(it);
         }else
@@ -90,7 +85,7 @@ void PatternMatchProcessor::CheckPendingMatches()
     }
 }
 
-int32_t PatternMatchProcessor::FindLineInd(const std::vector<LinePosData> &Data,int StartInd, int EndInd, int32_t Ind)
+int32_t PatternMatchProcessor::FindLineInd(const std::vector<BlockParams> &Data,int StartInd, int EndInd, int32_t Ind)
 {
     if(EndInd >= StartInd){
         int mid = StartInd + (EndInd - StartInd) / 2;
